@@ -1,6 +1,8 @@
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe, Logger } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import helmet from 'helmet';
 
 import { AppModule } from './app.module';
 
@@ -10,13 +12,21 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
+  app.use(
+    helmet({
+      crossOriginOpenerPolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'same-origin' },
+      contentSecurityPolicy: false, // define CSP en proxy o si sirves estáticos
+    }),
+  );
+
   app.enableCors();
 
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
       forbidNonWhitelisted: true,
-    })
+    }),
   );
 
   const config = new DocumentBuilder()
@@ -27,8 +37,7 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
-
   await app.listen(process.env.PORT);
-  logger.log(`App running on port ${ process.env.PORT }`);
+  logger.log(`App running on port ${process.env.PORT}`);
 }
 bootstrap();
