@@ -14,13 +14,15 @@ async function bootstrap() {
 
   app.use(
     helmet({
-      crossOriginOpenerPolicy: { policy: 'same-origin' },
-      crossOriginResourcePolicy: { policy: 'same-origin' },
+      crossOriginResourcePolicy: { policy: 'cross-origin' },
+      crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
       contentSecurityPolicy: false, // define CSP en proxy o si sirves estáticos
     }),
   );
 
-  app.enableCors();
+  app.enableCors({
+     origin: [ process.env.ORIGINS ],
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
